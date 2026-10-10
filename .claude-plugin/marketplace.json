@@ -1,0 +1,1 @@
+{"$schema":"https://json.schemastore.org/claude-code-marketplace.json","name":"lhg-plugs","owner":{"name":"刘洪光"},"plugins":[{"description":"知产保护助手：类型判断→申请流程→维权清单；非律师意见、仅供参考","name":"lhg-ip","source":"./"}]}
