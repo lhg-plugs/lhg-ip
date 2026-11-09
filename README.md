@@ -1,90 +1,97 @@
 <!-- About 简介（推送后填写到仓库 About 栏）：
-知产保护助手：类型判断→申请流程→维权清单 ｜ 一键安装：/plugin marketplace add lhg-plugs/lhg-ip
+知产保护助手：商标/著作权/专利/商业秘密四象限判断→检索与申请流程→维权清单；非律师意见、仅供参考，流程信息以官方最新公告为准。 ｜ 一键安装：/plugin marketplace add lhg-plugs/lhg-ip
 -->
-<!-- topics（推送后打）：claude-code, claude-plugin, agent-skills, ip-protection, trademark, copyright -->
+<!-- topics（推送后打）：claude-code, claude-plugin, agent-skills, ip, intellectual-property, trademark, copyright, patent -->
 
-# lhg-ip：知产保护助手，品牌保护一条龙
+<p align="center">
+  <img src="./assets/readme/hero.svg" width="100%" alt="lhg-ip — 知产保护助手">
+</p>
 
-> ⚠️ **声明（首屏置顶）**：本插件是**知产保护助手**（非"专家"，弱化执业暗示），**非律师意见、仅供参考**；商标/专利审查标准与流程**以官方最新公告为准**，本插件不预测审查结果、不承诺"包过/包授权"。
->
-> **一句话介绍**：给 AI 编程助手装上"知产保护助手"——商标/著作权/专利/商业秘密四象限判断 → 检索指引 → 申请流程 → 维权清单；**审查结果承诺写入即拦截，5 条确定性规则兜底**。
->
-> **一键安装**：在 Claude Code 里运行
-> ```
-> /plugin marketplace add lhg-plugs/lhg-ip
-> /plugin install lhg-ip@lhg-plugs
-> ```
+> **一句话介绍**：知产保护助手：商标/著作权/专利/商业秘密四象限判断→检索与申请流程→维权清单；非律师意见、仅供参考，流程信息以官方最新公告为准。
+
+**一键安装**：在 Claude Code 里运行
+
+```bash
+/plugin marketplace add lhg-plugs/lhg-ip
+/plugin install lhg-ip@lhg-plugs
+```
+
+## 它能帮你做出什么
+
+- **冒烟全绿**：`python3 smoke_test.py` 48 项全部通过（JSON 合法、frontmatter 完整、命令/skill/agent 齐全）。
 
 ## 它是什么
 
 `lhg-ip` 是一个 Claude Code 插件（plugin 为主、skill 为辅）：
 
-- **3 个命令**（小白入口）：`ip` 知产保护一条龙，`trademark` 商标专项（类别选择/驳回复审），`copyright` 著作权专项（登记流程/证据留存）
-- **3 个平台中立 skill**（方法论，可移植到豆包/Workbuddy 等 agent 平台）：四象限判断框架、商标注册实务（尼斯分类三层选择法）、侵权取证与维权路径清单
-- **2 个助手 agent**：知产顾问、知产材料审计员
-- **1 个执业硬门 hook**：写入文件命中执业暗示/审查结果承诺（包授权/保证下证/律师意见等）直接拦截，"非律师意见"声明不被误拦，可一键关闭
-- **5 条确定性审计规则**：纯 Python 标准库、零第三方依赖，含申请材料缺项、类别选择坑、时限节点、非律师意见声明检查
+- **3 个命令**（小白入口）：`copyright` 著作权专项、`ip` 知产保护一条龙、`trademark` 商标专项
+- **3 个平台中立 skill**（方法论，可移植到豆包/Workbuddy 等 agent 平台）：lhg-ip-defense, lhg-ip-map, lhg-ip-tm
+- **2 个专家 agent**：ip-advisor, ip-checker
+- **1 个 hooks**（`hooks/`：pre_ip_gate.py），关键操作前自动把关
 
-## 合规设计：三层防护
+## 为什么是它
 
-1. **声明置顶**：README 首屏、每个 SKILL.md 开头、每条命令输出末尾，都有显著的"非律师意见"声明。
-2. **写入硬门**：hook 在文件写入前扫描执业暗示/承诺性表述关键词，命中即拦截（exit 2）；`LHG_IP_ADVICE_OFF=1` 可关闭。
-3. **审计兜底**：`ip_audit.py` 的 5 条规则（3 blocker + 2 warning），`trademark`/`copyright` 命令逐条清零。
+不是一个 prompt，而是一套互相兜底的机制：
 
-## 3 个命令用法
+1. **硬门，不是提醒**：hooks 在关键操作前自动拦截或警告（见 `hooks/`），而不是只在文档里写一句"请注意"。
+2. **方法论沉淀在 skill 里**：流程、检查清单、口径都写在 `skills/` 的方法论里，命令只是入口；换个 agent 平台也能复用同一套做法。
+3. **可验，不是可信**：`fixtures/` 备有坏/好对照用例，`smoke_test.py` 一键验证，规则有没有生效、自己跑一遍就知道。
+
+## 快速上手
+
+```bash
+# 1. 安装（Claude Code 里运行）
+/plugin marketplace add lhg-plugs/lhg-ip
+/plugin install lhg-ip@lhg-plugs
+
+# 2. 知产保护一条龙：输入产品名 → 商标/著作权/专利/商业秘密四象限判断 → 检索
+/lhg-ip:ip "我的咖啡品牌'山野'"
+```
 
 | 命令 | 作用 | 示例 |
 |---|---|---|
-| `/lhg-ip:ip` | 类型判断→检索→申请→维权一条龙 | `/lhg-ip:ip "我的咖啡品牌'山野'"` |
-| `/lhg-ip:trademark` | 商标专项：类别/驳回复审 | `/lhg-ip:trademark "'山野' 咖啡"` |
-| `/lhg-ip:copyright` | 著作权专项：登记/证据留存 | `/lhg-ip:copyright "一套 UI 设计稿"` |
+| `/lhg-ip:copyright` | 著作权专项：登记流程与材料清单 → 证据留存方法（时间戳/存证/公证思路）→ 侵权应对清单（附非律师意见声明）。 | `/lhg-ip:copyright "一套 UI 设计稿"` |
+| `/lhg-ip:ip` | 知产保护一条龙：输入产品名 → 商标/著作权/专利/商业秘密四象限判断 → 检索指引 → 申请流程 → 维权清单（附非律… | `/lhg-ip:ip "我的咖啡品牌'山野'"` |
+| `/lhg-ip:trademark` | 商标专项：尼斯分类选择思路（核心类+防御类+关联类）→ 申请流程与材料清单 → 常见驳回原因 → 驳回复审指引（附非律师… | `/lhg-ip:trademark "'山野' 咖啡"` |
+
+## 什么时候用 / 什么时候不用（FAQ）
+
+**什么时候用：**
+
+- 你需要著作权专项时 → 用 `/lhg-ip:copyright`
+- 你需要知产保护一条龙时 → 用 `/lhg-ip:ip`
+- 你需要商标专项时 → 用 `/lhg-ip:trademark`
+
+**什么时候不用：**
+
+- 你只需要其中一个零散能力时 → 本插件是成套流程，单点需求用更轻量的 skill 更合适
+- 你希望 AI 完全自由发挥、不接受任何自查与硬门时 → 它的规则审计与 hooks 会介入（可关，但那就别装它）
+- 你的场景不在上面命令表覆盖范围内时 → 先看命令表，没有对应命令就别硬套
 
 ## 目录结构
 
 ```
 lhg-ip/
-├── .claude-plugin/          # plugin.json（插件清单）+ marketplace.json（本仓即市场）
-├── commands/                # 3 个命令：ip / trademark / copyright
-├── skills/                  # 3 个平台中立 skill（四象限/商标实务/维权清单，声明置顶）
-├── agents/                  # 2 个助手 agent（ip-advisor / ip-checker）
-├── hooks/                   # 执业暗示/承诺性表述拦截 hook（fail-open，可一键关闭）
-├── scripts/audit/           # 确定性审计：ip_audit.py（零第三方依赖）
-├── fixtures/                # 好/坏对照用例
-├── smoke_test.py            # 冒烟测试
-├── ATTRIBUTION.md           # 灵感来源声明
-└── LICENSE                  # MIT
+├── smoke_test.py          # 一键冒烟测试
+├── ATTRIBUTION.md         # 灵感来源与许可声明
+├── LICENSE                # MIT
+├── README.md              # 本文件
+├── .claude-plugin/
+├── agents/
+├── commands/
+├── fixtures/
+├── hooks/
+├── scripts/
+├── skills/
 ```
-
-## 什么时候用 / 什么时候不用（FAQ）
-
-**什么时候用**
-- 有了品牌名/产品，不知道该注册商标还是登记版权 → `ip` 跑四象限判断
-- 商标类别不知道选哪几类 → `trademark` 三层选择法
-- 收到商标驳回通知 → `trademark` 驳回复审决策框架
-- 作品被搬运/抄袭，不知道保留哪些证据 → `copyright` + 维权清单
-- 申请前想体检材料齐不齐 → 审计脚本逐条清零
-
-**什么时候不用**
-- 想要"这个商标一定能注册"的结论 → 本插件**不给**，审查结果由官方判定
-- 想要代理机构"包过"服务 → 本插件不承诺，承诺包过的代理本身就不靠谱
-- 涉外申请（马德里/ PCT）→ 超出本插件范围，请咨询专业代理机构
-- 想伪造证据"让维权更稳" → **直接拒绝**，这是违法的
 
 ## 自检与反馈
 
-本插件自带质检：每次使用后可跑 `python3 smoke_test.py` 一键验证（JSON 合法、skill/command/agent 完整性、5 条规则、fixtures 命中、hooks 行为）。
+本插件自带质检：每次使用后可跑 `python3 smoke_test.py` 一键验证（本次实测 48 项全部通过）。
 
 发现 bug 或有改进建议，以 `[QC] <一句话问题>` 为标题提交到 https://github.com/lhg-plugs/lhg-ip/issues，正文写清"复现步骤 → 实际表现 → 期望表现"。
 
-## 组织插件矩阵（互链）
-
-| 插件 | 一句话 | 安装 |
-|---|---|---|
-| [lhg-startup-legal](https://github.com/lhg-plugs/lhg-startup-legal) | 创业法务助手：选型→注册→股权→协议一条龙 | `/plugin install lhg-startup-legal@lhg-plugs` |
-| [lhg-contract](https://github.com/lhg-plugs/lhg-contract) | 合同审查助手：风险条款标红+修改建议 | `/plugin install lhg-contract@lhg-plugs` |
-| [lhg-labor-rights](https://github.com/lhg-plugs/lhg-labor-rights) | 劳动维权助手：仲裁维权一条龙 | `/plugin install lhg-labor-rights@lhg-plugs` |
-| [lhg-bp](https://github.com/lhg-plugs/lhg-bp) | 商业计划书专家：九章BP→投资人自检→路演版 | `/plugin install lhg-bp@lhg-plugs` |
-| [lhg-fullstack](https://github.com/lhg-plugs/lhg-fullstack) | 小白一句话 → 高质量全栈应用 | `/plugin install lhg-fullstack@lhg-plugs` |
+同门插件见 [lhg-plugs](https://github.com/lhg-plugs)，86 个插件的完整矩阵在 [marketplace](https://github.com/lhg-plugs/marketplace) 维护。
 
 ## 出品：刘洪光
 
